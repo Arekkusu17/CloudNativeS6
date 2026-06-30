@@ -36,7 +36,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/h2-console/**").permitAll()
-                        .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                        .requestMatchers("/actuator/health", "/actuator/info").hasAnyRole(ROL_DESCARGA_GUIAS, ROL_GESTION_GUIAS)
                         .requestMatchers(HttpMethod.GET, "/api/guias/*/descargar")
                         .hasAnyRole(ROL_DESCARGA_GUIAS, ROL_GESTION_GUIAS)
                         .requestMatchers("/api/guias/**").hasRole(ROL_GESTION_GUIAS)
