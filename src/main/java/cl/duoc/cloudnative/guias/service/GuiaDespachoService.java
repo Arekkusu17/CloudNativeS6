@@ -8,7 +8,6 @@ import cl.duoc.cloudnative.guias.model.GuiaDespacho;
 import cl.duoc.cloudnative.guias.repository.GuiaDespachoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -19,10 +18,16 @@ public class GuiaDespachoService {
 
     private final GuiaDespachoRepository guiaDespachoRepository;
     private final StorageService storageService;
+    private final GuiaArchivoGenerator guiaArchivoGenerator;
 
-    public GuiaDespachoService(GuiaDespachoRepository guiaDespachoRepository, StorageService storageService) {
+    public GuiaDespachoService(
+            GuiaDespachoRepository guiaDespachoRepository,
+            StorageService storageService,
+            GuiaArchivoGenerator guiaArchivoGenerator
+    ) {
         this.guiaDespachoRepository = guiaDespachoRepository;
         this.storageService = storageService;
+        this.guiaArchivoGenerator = guiaArchivoGenerator;
     }
 
     @Transactional
@@ -38,9 +43,10 @@ public class GuiaDespachoService {
     }
 
     @Transactional
-    public GuiaResponse subirArchivoGuia(UUID id, MultipartFile archivo) {
+    public GuiaResponse generarYSubirArchivoGuia(UUID id) {
         GuiaDespacho guia = buscarEntidad(id);
-        String key = storageService.subirGuia(id, archivo);
+        ArchivoGuia archivo = guiaArchivoGenerator.generar(guia);
+        String key = storageService.subirGuia(id, archivo.nombreArchivo(), archivo.contenido(), archivo.contentType());
         guia.asignarArchivoS3(key);
         return GuiaResponse.from(guiaDespachoRepository.save(guia));
     }

@@ -3,7 +3,6 @@ package cl.duoc.cloudnative.guias.service;
 import cl.duoc.cloudnative.guias.dto.ArchivoGuia;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -12,7 +11,6 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
-import java.io.IOException;
 import java.util.UUID;
 
 @Service
@@ -27,23 +25,19 @@ public class S3StorageService implements StorageService {
     }
 
     @Override
-    public String subirGuia(UUID guiaId, MultipartFile archivo) {
-        validarArchivo(archivo);
-        String filename = archivo.getOriginalFilename() == null ? "guia.pdf" : archivo.getOriginalFilename();
-        String key = "guias/" + guiaId + "/" + filename.replaceAll("[^a-zA-Z0-9._-]", "_");
+    public String subirGuia(UUID guiaId, String nombreArchivo, byte[] contenido, String contentType) {
+        validarArchivo(nombreArchivo, contenido);
+        String filename = nombreArchivo.replaceAll("[^a-zA-Z0-9._-]", "_");
+        String key = "guias/" + guiaId + "/" + filename;
         String bucketDestino = obtenerBucket();
 
-        try {
-            PutObjectRequest request = PutObjectRequest.builder()
-                    .bucket(bucketDestino)
-                    .key(key)
-                    .contentType(archivo.getContentType())
-                    .build();
-            s3Client.putObject(request, RequestBody.fromInputStream(archivo.getInputStream(), archivo.getSize()));
-            return key;
-        } catch (IOException ex) {
-            throw new IllegalStateException("No fue posible leer el archivo recibido", ex);
-        }
+        PutObjectRequest request = PutObjectRequest.builder()
+                .bucket(bucketDestino)
+                .key(key)
+                .contentType(contentType)
+                .build();
+        s3Client.putObject(request, RequestBody.fromBytes(contenido));
+        return key;
     }
 
     @Override
@@ -73,9 +67,12 @@ public class S3StorageService implements StorageService {
         return bucket.trim();
     }
 
-    private void validarArchivo(MultipartFile archivo) {
-        if (archivo == null || archivo.isEmpty()) {
-            throw new IllegalArgumentException("Debe enviar un archivo de guia.");
+    private void validarArchivo(String nombreArchivo, byte[] contenido) {
+        if (nombreArchivo == null || nombreArchivo.isBlank()) {
+            throw new IllegalArgumentException("Debe indicar el nombre del archivo de guia.");
+        }
+        if (contenido == null || contenido.length == 0) {
+            throw new IllegalArgumentException("El archivo de guia generado esta vacio.");
         }
     }
 }

@@ -234,15 +234,14 @@ Respuesta esperada:
 }
 ```
 
-### Subir archivo a S3
+### Generar y subir archivo a S3
 
 ```bash
 curl -X POST http://localhost:8080/api/guias/<id>/archivo \
-  -H "Authorization: Bearer <token>" \
-  -F "archivo=@guia.pdf"
+  -H "Authorization: Bearer <token>"
 ```
 
-El archivo queda almacenado en el bucket configurado por `S3_BUCKET` y la guia guarda la key S3 asociada.
+La API genera el archivo de la guia a partir de los datos guardados, lo sube al bucket configurado por `S3_BUCKET` y la guia guarda la key S3 asociada.
 
 ### Descargar archivo
 

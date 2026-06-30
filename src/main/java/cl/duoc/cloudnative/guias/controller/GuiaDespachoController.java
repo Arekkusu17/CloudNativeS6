@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -44,9 +43,9 @@ public class GuiaDespachoController {
         return service.crearGuia(request);
     }
 
-    @PostMapping(path = "/{id}/archivo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<GuiaResponse> subirArchivo(@PathVariable UUID id, @RequestParam("archivo") MultipartFile archivo) {
-        return ResponseEntity.ok(service.subirArchivoGuia(id, archivo));
+    @PostMapping("/{id}/archivo")
+    public ResponseEntity<GuiaResponse> generarArchivo(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.generarYSubirArchivoGuia(id));
     }
 
     @GetMapping("/{id}/descargar")
