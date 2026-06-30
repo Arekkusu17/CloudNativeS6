@@ -11,5 +11,11 @@ CREATE TABLE IF NOT EXISTS guias_despacho (
     actualizado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+ALTER TABLE guias_despacho
+    ADD COLUMN IF NOT EXISTS creado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE guias_despacho
+    ADD COLUMN IF NOT EXISTS actualizado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
 CREATE INDEX IF NOT EXISTS idx_guias_transportista_fecha
     ON guias_despacho (transportista, fecha_despacho);
